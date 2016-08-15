@@ -1,0 +1,21 @@
+{
+  "name": "API.AI Twitter integration",
+  "description": "Api.ai Twitter integration allows you to create Twitter bots with natural language understanding based on Api.ai technology.",
+  "repository": "https://github.com/api-ai/apiai-twitter-bot",
+  "logo": "http://xvir.github.io/img/apiai.png",
+  "keywords": ["api.ai", "twitter", "natural language"],
+  "env": {
+    "APIAI_ACCESS_TOKEN": {
+      "description": "Client access token for Api.ai",
+      "value": ""
+    },
+    "APIAI_LANG": {
+      "description": "Agent language",
+      "value": "en",
+      "required": false
+    }
+  },
+  "engines": {
+    "node": "5.10.1"
+  }
+}

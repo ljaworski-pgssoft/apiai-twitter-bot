@@ -18,6 +18,38 @@ module.exports = class TwitterBotConfig {
         this._apiaiLang = value;
     }
 
+    get consumerKey() {
+        return this._consumerKey;
+    }
+
+    set consumerKey(value) {
+        this._consumerKey = value;
+    }
+
+    get consumerSecret() {
+        return this._consumerSecret;
+    }
+
+    set consumerSecret(value) {
+        this._consumerSecret = value;
+    }
+
+    get accessToken() {
+        return this._accessToken;
+    }
+
+    set accessToken(value) {
+        this._accessToken = value;
+    }
+
+    get accessTokenSecret() {
+        return this._accessTokenSecret;
+    }
+
+    set accessTokenSecret(value) {
+        this._accessTokenSecret = value;
+    }
+
     get devConfig() {
         return this._devConfig;
     }
@@ -26,8 +58,13 @@ module.exports = class TwitterBotConfig {
         this._devConfig = value;
     }
 
-    constructor(apiaiAccessToken, apiaiLang) {
-        this._apiaiAccessToken = apiaiAccessToken;
-        this._apiaiLang = apiaiLang;
+    constructor(apiaiAccessToken, apiaiLang, consumerKey, consumerSecret, accessToken, accessTokenSecret) {
+        this.apiaiAccessToken = apiaiAccessToken;
+        this.apiaiLang = apiaiLang;
+
+        this.consumerKey = consumerKey;
+        this.consumerSecret = consumerSecret;
+        this.accessToken = accessToken;
+        this.accessTokenSecret = accessTokenSecret;
     }
 };

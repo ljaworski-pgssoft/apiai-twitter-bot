@@ -2,7 +2,7 @@
 
 const apiai = require('apiai');
 const uuid = require('node-uuid');
-
+const Twit = require('twit');
 
 module.exports = class TwitterBot {
 
@@ -41,17 +41,37 @@ module.exports = class TwitterBot {
         this._sessionIds = new Map();
     }
 
-    processMessage(req, res) {
+    start() {
+        this._t = new Twit({
+            consumer_key: this.botConfig.consumerKey,
+            consumer_secret: this.botConfig.consumerSecret,
+            access_token: this.botConfig.accessToken,
+            access_token_secret: this.botConfig.accessTokenSecret
+        });
+
+        this._stream = this._t.stream('statuses/sample');
+
+        this._stream.on('tweet', (tweet) => {
+            this.processMessage(tweet);
+        })
+    }
+
+    stop() {
+        this._stream.stop()
+    }
+
+    processMessage(tweet) {
         if (this._botConfig.devConfig) {
             console.log("body", req.body);
         }
 
-        if (req.body && req.body.From && req.body.Body) {
-            let chatId = req.body.From;
-            let messageText = req.body.Body;
+        if (tweet.text && tweet.user) {
+            let chatId = tweet.user.id_str;
+            let messageText = tweet.text;
+            let userName = tweet.user.screen_name;
 
             console.log(chatId, messageText);
-            
+
             if (messageText) {
                 if (!this._sessionIds.has(chatId)) {
                     this._sessionIds.set(chatId, uuid.v1());
@@ -64,11 +84,10 @@ module.exports = class TwitterBot {
 
                 apiaiRequest.on('response', (response) => {
                     if (TwitterBot.isDefined(response.result)) {
-                        let responseText = response.result.fulfillment.speech;
+                        let responseText = "@" + userName + " " + response.result.fulfillment.speech;
 
                         if (TwitterBot.isDefined(responseText)) {
                             console.log('Response as text message');
-                            res.status(200).end();
                         } else {
                             console.log('Received empty speech');
                         }
@@ -82,11 +101,11 @@ module.exports = class TwitterBot {
             }
             else {
                 console.log('Empty message');
-                return res.status(400).end('Empty message');
+
             }
         } else {
             console.log('Empty message');
-            return res.status(400).end('Empty message');
+
         }
     }
 

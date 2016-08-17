@@ -1,7 +1,6 @@
 'use strict';
 
 const express = require('express');
-//const bodyParser = require('body-parser');
 
 const TwitterBot = require('./twitterbot');
 const TwitterBotConfig = require('./twitterbotconfig');
@@ -15,6 +14,7 @@ require('console-stamp')(console, 'yyyy.mm.dd HH:MM:ss.l');
 const botConfig = new TwitterBotConfig(
     process.env.APIAI_ACCESS_TOKEN,
     process.env.APIAI_LANG,
+    process.env.BOT_NAME,
     process.env.CONSUMER_KEY,
     process.env.CONSUMER_SECRET,
     process.env.ACCESS_TOKEN,

@@ -2,6 +2,14 @@
 
 module.exports = class TwitterBotConfig {
 
+    get botName() {
+        return this._botName;
+    }
+
+    set botName(value) {
+        this._botName = value;
+    }
+
     get apiaiAccessToken() {
         return this._apiaiAccessToken;
     }
@@ -58,10 +66,11 @@ module.exports = class TwitterBotConfig {
         this._devConfig = value;
     }
 
-    constructor(apiaiAccessToken, apiaiLang, consumerKey, consumerSecret, accessToken, accessTokenSecret) {
+    constructor(apiaiAccessToken, apiaiLang, botName, consumerKey, consumerSecret, accessToken, accessTokenSecret) {
         this.apiaiAccessToken = apiaiAccessToken;
         this.apiaiLang = apiaiLang;
 
+        this.botName = botName;
         this.consumerKey = consumerKey;
         this.consumerSecret = consumerSecret;
         this.accessToken = accessToken;

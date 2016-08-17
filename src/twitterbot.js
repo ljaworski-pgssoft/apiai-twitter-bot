@@ -39,6 +39,8 @@ module.exports = class TwitterBot {
 
         this._apiaiService = apiai(botConfig.apiaiAccessToken, apiaiOptions);
         this._sessionIds = new Map();
+
+        this._botnameRegexp = new RegExp("(" + this.escapeRegExp("@" + this.botConfig.botName) + ")", "gi");
     }
 
     start() {
@@ -49,11 +51,17 @@ module.exports = class TwitterBot {
             access_token_secret: this.botConfig.accessTokenSecret
         });
 
-        this._stream = this._t.stream('statuses/sample');
+        this._stream = this._t.stream('user');
 
         this._stream.on('tweet', (tweet) => {
+            console.log('tweet');
             this.processMessage(tweet);
-        })
+        });
+
+        this._stream.on('direct_message', (dm) => {
+            console.log('direct_message');
+            this.processDirectMessage(dm);
+        });
     }
 
     stop() {
@@ -62,13 +70,35 @@ module.exports = class TwitterBot {
 
     processMessage(tweet) {
         if (this._botConfig.devConfig) {
-            console.log("body", req.body);
+            console.log("body", tweet);
         }
 
         if (tweet.text && tweet.user) {
             let chatId = tweet.user.id_str;
             let messageText = tweet.text;
             let userName = tweet.user.screen_name;
+
+            if (this.botConfig.botName.toLowerCase() == tweet.user.screen_name.toLowerCase()) {
+                // bot received his own tweet
+                return;
+            }
+
+            if (!tweet.entities.user_mentions || tweet.entities.user_mentions.length == 0) {
+                return;
+            }
+
+            //we will check if tweet contains mention of the bot
+            let mentions = tweet.entities.user_mentions;
+            let bot_mention = mentions.find((mention) => {
+                return mention.screen_name.toLowerCase() == this.botConfig.botName.toLowerCase();
+            });
+
+            if (!bot_mention) {
+                return;
+            }
+
+            // remove bot mention from message text
+            messageText = messageText.replace(this._botnameRegexp, "");
 
             console.log(chatId, messageText);
 
@@ -83,14 +113,21 @@ module.exports = class TwitterBot {
                     });
 
                 apiaiRequest.on('response', (response) => {
-                    if (TwitterBot.isDefined(response.result)) {
+                    if (TwitterBot.isDefined(response.result)
+                        && response.result.fulfillment
+                        && response.result.fulfillment.speech) {
+
                         let responseText = "@" + userName + " " + response.result.fulfillment.speech;
 
-                        if (TwitterBot.isDefined(responseText)) {
-                            console.log('Response as text message');
-                        } else {
-                            console.log('Received empty speech');
-                        }
+                        console.log('Response as text message');
+                        this._t.post('statuses/update', {status: responseText}, (err, data, response) => {
+                            if (err) {
+                                console.error('Response as tweet error', err);
+                            } else {
+                                console.log('Response as tweet result', data)
+                            }
+                        });
+
                     } else {
                         console.log('Received empty result')
                     }
@@ -107,6 +144,56 @@ module.exports = class TwitterBot {
             console.log('Empty message');
 
         }
+    }
+
+    processDirectMessage(dm) {
+        let text = dm.direct_message.text;
+        let sender = dm.direct_message.sender_id_str;
+        let chatId = "dm_" + sender;
+        let recipient = dm.direct_message.recipient_id_str;
+
+        if (sender != recipient && text) {
+
+            if (!this._sessionIds.has(chatId)) {
+                this._sessionIds.set(chatId, uuid.v1());
+            }
+
+            let apiaiRequest = this._apiaiService.textRequest(text,
+                {
+                    sessionId: this._sessionIds.get(chatId)
+                });
+
+            apiaiRequest.on('response', (response) => {
+                if (TwitterBot.isDefined(response.result)
+                    && response.result.fulfillment
+                    && response.result.fulfillment.speech) {
+
+                    let responseText = response.result.fulfillment.speech;
+
+                    console.log('Response as text message');
+                    this._t.post('direct_messages/new', {
+                        user_id: sender,
+                        text: responseText
+                    }, (err, data, response) => {
+                        if (err) {
+                            console.error('Response error', err);
+                        } else {
+                            console.log('Response result', data)
+                        }
+                    });
+
+                } else {
+                    console.log('Received empty result')
+                }
+            });
+
+            apiaiRequest.on('error', (error) => console.error(error));
+            apiaiRequest.end();
+        }
+    }
+
+    escapeRegExp(str) {
+        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     }
 
     static isDefined(obj) {

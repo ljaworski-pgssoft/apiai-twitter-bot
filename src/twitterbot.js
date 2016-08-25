@@ -128,7 +128,7 @@ module.exports = class TwitterBot {
                             if (err) {
                                 console.error('Response as tweet error', err);
                             } else {
-                                console.log('Response as tweet result', data)
+                                console.log('Response as tweet succeeded');
                             }
                         });
 
@@ -182,7 +182,7 @@ module.exports = class TwitterBot {
                         if (err) {
                             console.error('Response error', err);
                         } else {
-                            console.log('Response result', data)
+                            console.log('Response as direct message succeeded');
                         }
                     });
 

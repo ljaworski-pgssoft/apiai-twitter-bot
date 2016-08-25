@@ -119,6 +119,10 @@ module.exports = class TwitterBot {
 
                         let responseText = "@" + userName + " " + response.result.fulfillment.speech;
 
+                        if (responseText.length > 140) {
+                            responseText = responseText.substr(0, 137) + "...";
+                        }
+
                         console.log('Response as text message');
                         this._t.post('statuses/update', {status: responseText}, (err, data, response) => {
                             if (err) {

@@ -101,6 +101,11 @@ module.exports = class TwitterBot {
                 // don't respond to tweets containing links
                 return;
             }
+            
+            if (tweet.retweeted_status) {
+                // ignore retweets
+                return;
+            }
 
             // remove bot mention from message text
             messageText = messageText.replace(this._botnameRegexp, "");

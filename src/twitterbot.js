@@ -97,8 +97,8 @@ module.exports = class TwitterBot {
                 return;
             }
             
-            if (tweet.entities.urls) {
-                // don't respond to tweets containing a link
+            if (tweet.entities.urls.length > 0) {
+                // don't respond to tweets containing links
                 return;
             }
 

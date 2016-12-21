@@ -96,6 +96,11 @@ module.exports = class TwitterBot {
             if (!bot_mention) {
                 return;
             }
+            
+            if (tweet.entities.links) {
+                // don't respond to tweets containing a link
+                return;
+            }
 
             // remove bot mention from message text
             messageText = messageText.replace(this._botnameRegexp, "");
@@ -124,7 +129,7 @@ module.exports = class TwitterBot {
                         }
 
                         console.log('Response as text message');
-                        this._t.post('statuses/update', {status: responseText}, (err, data, response) => {
+                        this._t.post('statuses/update', {status: responseText, in_reply_to_status_id: tweet.id_str}, (err, data, response) => {
                             if (err) {
                                 console.error('Response as tweet error', err);
                             } else {

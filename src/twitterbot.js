@@ -96,12 +96,12 @@ module.exports = class TwitterBot {
             if (!bot_mention) {
                 return;
             }
-            
+
             if (tweet.entities.urls.length > 0) {
                 // don't respond to tweets containing links
                 return;
             }
-            
+
             if (tweet.retweeted_status) {
                 // ignore retweets
                 return;
@@ -130,7 +130,7 @@ module.exports = class TwitterBot {
                         let responseText = "@" + userName + " " + response.result.fulfillment.speech;
 
                         if (responseText.length > 140) {
-                            responseText = responseText.substr(0, 137) + "...";
+                            responseText = responseText.substr(0, 139) + "…";
                         }
 
                         console.log('Response as text message');

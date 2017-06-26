@@ -15,6 +15,7 @@
     "console-stamp": "^0.2.1",
     "express": "^4.13.4",
     "node-uuid": "^1.4.7",
-    "twit": "^2.2.4"
+    "twit": "^2.2.4",
+    "twitter-text": "^1.14.6"
   }
 }

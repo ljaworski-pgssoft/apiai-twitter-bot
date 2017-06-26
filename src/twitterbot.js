@@ -3,6 +3,7 @@
 const apiai = require('apiai');
 const uuid = require('node-uuid');
 const Twit = require('twit');
+const twitter = require('twitter-text');
 
 module.exports = class TwitterBot {
 
@@ -129,8 +130,8 @@ module.exports = class TwitterBot {
 
                         let responseText = "@" + userName + " " + response.result.fulfillment.speech;
 
-                        if (responseText.length > 140) {
-                            responseText = responseText.substr(0, 139) + "…";
+                        if (twitter.getTweetLength(responseText) > 140) {
+                            responseText = responseText.substr(0, 136) + "…";
                         }
 
                         console.log('Response as text message');
